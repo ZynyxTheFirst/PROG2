@@ -4,17 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="68689921-79d0-4bbc-8779-ddd9bbc2dfb6" name="Changes" comment="1">
-      <change afterPath="$PROJECT_DIR$/src/main/java/Main/Graph.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/Main/ListGraph.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/Main/GraphTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/Main/I1.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Edge.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Edge.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ListGraph.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Place.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Place.java" afterDir="false" />
-    </list>
+    <list default="true" id="68689921-79d0-4bbc-8779-ddd9bbc2dfb6" name="Changes" comment="1" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -104,7 +94,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1681834328892</updated>
-      <workItem from="1681834329968" duration="10790000" />
+      <workItem from="1681834329968" duration="11142000" />
     </task>
     <task id="LOCAL-00001" summary="1">
       <created>1681834878624</created>
