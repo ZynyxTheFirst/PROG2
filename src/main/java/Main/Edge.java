@@ -1,4 +1,7 @@
-public class Edge<T> {
+package Main;
+import java.io.Serializable;
+
+public class Edge<T> implements Serializable {
     private final T destination;
     private final String name;
     private int weight;

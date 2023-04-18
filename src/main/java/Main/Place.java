@@ -1,3 +1,5 @@
+package Main;
+
 public class Place extends Edge{
     String name;
 
