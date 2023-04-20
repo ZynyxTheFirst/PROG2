@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="68689921-79d0-4bbc-8779-ddd9bbc2dfb6" name="Changes" comment="1" />
+    <list default="true" id="68689921-79d0-4bbc-8779-ddd9bbc2dfb6" name="Changes" comment="1">
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/Main/tpr.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Main/Edge.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/Edge.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Main/ListGraph.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main/ListGraph.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Main/Place.java" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -13,8 +20,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="JUnit5 Test Class" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -46,6 +53,10 @@
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
     "last_opened_file_path": "Z:/University/Prog2/openjfx-17.0.6_windows-x64_bin-sdk/javafx-sdk-17.0.6/lib",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
@@ -65,12 +76,27 @@
       <recent name="Main" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="JUnit.GraphTest">
+    <configuration name="GraphTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="PROG2" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="Main.Test" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="Main" />
+      <option name="MAIN_CLASS_NAME" value="Main.GraphTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Main in PROG2" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="PROG2" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="Main.*" />
+          <option name="PATTERN" value="Main.Test" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -82,6 +108,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.GraphTest" />
         <item itemvalue="JUnit.Main in PROG2" />
       </list>
     </recent_temporary>
@@ -94,7 +121,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1681834328892</updated>
-      <workItem from="1681834329968" duration="11142000" />
+      <workItem from="1681834329968" duration="11506000" />
+      <workItem from="1682000223627" duration="12225000" />
     </task>
     <task id="LOCAL-00001" summary="1">
       <created>1681834878624</created>

@@ -2,22 +2,24 @@ package Main;
 import java.io.Serializable;
 
 public class Edge<T> implements Serializable {
-    private final T destination;
+    private final T node;
     private final String name;
     private int weight;
 
-    public Edge(T destination, String name, int weight){
+    public Edge(T node, String name, int weight){
         this.name = name;
-        this.destination = destination;
+        this.node = node;
         this.weight = weight;
     }
 
     public T getDestination() {
-        return destination;
+        return node;
     }
+
     public int getWeight(){
         return weight;
     }
+
     public void setWeight(int weight){
         if(weight < 0){
             throw new IllegalArgumentException();
@@ -25,11 +27,13 @@ public class Edge<T> implements Serializable {
             this.weight = weight;
         }
     }
+
     public String getName(){
         return name;
     }
+
     @Override
     public String toString(){
-        return destination + ", " + name + ", " + weight;
+        return "till " + node + " med " + name + " tar " + weight;
     }
 }
