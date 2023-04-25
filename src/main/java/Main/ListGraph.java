@@ -1,10 +1,16 @@
 package Main;
+// PROG2 VT2023, Inlämningsuppgift, del 1
+// Grupp 031
+// Hanna Arrhenius haar9434
+// Erik Strandberg erst1916
+// Robin Westling rowe7856
+
 import java.util.*;
 import java.io.Serializable;
 
 public class ListGraph<T> implements Graph<T>, Serializable {
 
-    private final Map<T, Set<Edge>> nodes = new HashMap<>();
+    private final Map<T, Set<Edge<T>>> nodes = new HashMap<>();
 
     public void add(T node) {
         nodes.putIfAbsent(node, new HashSet<>());
@@ -30,8 +36,8 @@ public class ListGraph<T> implements Graph<T>, Serializable {
         else if(getEdgeBetween(node1, node2) != null)
             throw new IllegalStateException();
         else {
-            nodes.get(node1).add(new Edge(node2, name, weight));
-            nodes.get(node2).add(new Edge(node1, name, weight));
+            nodes.get(node1).add(new Edge<>(node2, name, weight));
+            nodes.get(node2).add(new Edge<>(node1, name, weight));
         }
     }
 
@@ -77,26 +83,30 @@ public class ListGraph<T> implements Graph<T>, Serializable {
         if(nodes.get(current).equals(nodes.get(searchedFor))) {
             visited.add(current);
         }
-        for (Edge edge : nodes.get(current)) {
+        for (Edge<T> edge : nodes.get(current)) {
             if (!visited.contains(edge.getDestination())) {
-                search((T)edge.getDestination(), searchedFor, visited);
+                search(edge.getDestination(), searchedFor, visited);
             }
         }
     }
 
     public List<Edge<T>> getPath(T from, T to) {
         Map<T, T> connections = new HashMap<>();
+        Map<T, Integer> weights = new HashMap<>();
         LinkedList<T> queue = new LinkedList<>();
 
         connections.put(from, null);
+        weights.put(from, 0);
         queue.add(from);
 
         while (!queue.isEmpty()) {
             T t = queue.pollFirst();
             for (Edge<T> edge : nodes.get(t)) {
                 T destination = edge.getDestination();
-                if (!connections.containsKey(destination)) {
+                int weightToDestination = weights.get(t) + edge.getWeight();
+                if (!weights.containsKey(destination) || weightToDestination < weights.get(destination)) {
                     connections.put(destination, t);
+                    weights.put(destination, weightToDestination);
                     queue.add(destination);
                 }
             }
@@ -113,7 +123,7 @@ public class ListGraph<T> implements Graph<T>, Serializable {
 
         while (!current.equals(from)) {
             T next = connections.get(current);
-            Edge edge = getEdgeBetween(next, current);
+            Edge<T> edge = getEdgeBetween(next, current);
             path.addFirst(edge);
             current = next;
         }
@@ -144,7 +154,7 @@ public class ListGraph<T> implements Graph<T>, Serializable {
         if(!nodes.containsKey(node1) || !nodes.containsKey(node2)){
             throw new NoSuchElementException();
         }
-        for (Edge edge : nodes.get(node1)){
+        for (Edge<T> edge : nodes.get(node1)){
             if (edge.getDestination().equals(node2)){
                 return edge;
             }

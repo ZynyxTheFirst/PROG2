@@ -1,4 +1,9 @@
 package Main;
+// PROG2 VT2023, Inlämningsuppgift, del 1
+// Grupp 031
+// Hanna Arrhenius haar9434
+// Erik Strandberg erst1916
+// Robin Westling rowe7856
 import java.io.Serializable;
 
 public class Edge<T> implements Serializable {
