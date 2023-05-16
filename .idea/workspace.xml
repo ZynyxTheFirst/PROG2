@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="68689921-79d0-4bbc-8779-ddd9bbc2dfb6" name="Changes" comment="1">
-      <change afterPath="$PROJECT_DIR$/src/main/europa.gif" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/europa.gif" beforeDir="false" afterPath="$PROJECT_DIR$/europa.gif" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/PathFinder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/PathFinder.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -49,7 +49,7 @@
     "WebServerToolWindowFactoryState": "false",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
-    "last_opened_file_path": "Z:/University/Prog2/Grupparbete/PROG2/src/main/java",
+    "last_opened_file_path": "C:/Users/robin/Downloads/openjfx-17.0.7_windows-x64_bin-sdk/javafx-sdk-17.0.7/lib",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -69,6 +69,7 @@
       <recent name="" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\robin\Documents\SU\PROG2" />
       <recent name="Z:\University\Prog2\Grupparbete\PROG2\src\main" />
     </key>
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
@@ -94,11 +95,10 @@
       </method>
     </configuration>
     <configuration name="PathFinder" type="Application" factoryName="Application" nameIsGenerated="true">
-      <option name="ALTERNATIVE_JRE_PATH" value="C:/Program Files/Java/jdk-17.0.1" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="ALTERNATIVE_JRE_PATH" value="$USER_HOME$/.jdks/corretto-17.0.5" />
       <option name="MAIN_CLASS_NAME" value="PathFinder" />
       <module name="PROG2" />
-      <option name="VM_PARAMETERS" value="--module-path &quot;Z:\University\Prog2\openjfx-17.0.6_windows-x64_bin-sdk\javafx-sdk-17.0.6\lib&quot; --add-modules=javafx.controls,javafx.fxml" />
+      <option name="VM_PARAMETERS" value="--module-path &quot;C:\Users\robin\Downloads\openjfx-17.0.7_windows-x64_bin-sdk\javafx-sdk-17.0.7\lib&quot; --add-modules=javafx.controls,javafx.fxml" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -154,6 +154,7 @@
       <workItem from="1682439424575" duration="6587000" />
       <workItem from="1682955345740" duration="36000" />
       <workItem from="1683043576970" duration="8122000" />
+      <workItem from="1683619801285" duration="6778000" />
     </task>
     <task id="LOCAL-00001" summary="1">
       <created>1681834878624</created>
