@@ -3,7 +3,10 @@
 // Hanna Arrhenius haar9434
 // Erik Strandberg erst1916
 // Robin Westling rowe7856
+import Main.ListGraph;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -13,27 +16,36 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
 
-public class PathFinder extends Application{
+import java.io.*;
 
+public class PathFinder extends Application{
+    ListGraph<Location> listGraph = new ListGraph<>();
     private static final String imageUrl = "file:europa.gif";
+    private static final String fileName = "europa.graph";
     boolean eventHandlerActivated = false;
     boolean mapIsLoaded = false;
+    ImageView imageView;
+    Image map;
+    StackPane stackPane;
+    Pane circlePane;
+
     public void start(Stage stage){
 
-        ImageView imageView = new ImageView();
-        Image map = new Image(imageUrl);
+        imageView = new ImageView();
+        map = new Image(imageUrl);
 
         //Create StackPane to hold the image and circles
-        StackPane stackPane = new StackPane();
+        stackPane = new StackPane();
         stackPane.getChildren().add(imageView);
 
-        Pane circlePane = new Pane();
+        circlePane = new Pane();
         stackPane.getChildren().add(circlePane);
 
         //Drop down menu
@@ -62,7 +74,9 @@ public class PathFinder extends Application{
             mapIsLoaded = true;
         });
         MenuItem openMI = new MenuItem("Open");
+        openMI.setOnAction(event -> open());
         MenuItem saveMI = new MenuItem("Save");
+        saveMI.setOnAction(new SaveHandler());
         MenuItem saveImageMI = new MenuItem("Save Image");
         MenuItem exitMI = new MenuItem("Exit");
         fileMenu.getItems().addAll(newMapMI, openMI, saveMI, saveImageMI, exitMI);
@@ -83,12 +97,14 @@ public class PathFinder extends Application{
         VBox vBox = new VBox();
         HBox buttons = new HBox();
 
+        String tempName = "name";
         stackPane.setOnMouseClicked(event -> {
             if (eventHandlerActivated) {
-                Circle circle = new Circle(event.getX(), event.getY(), 10);
-                circle.setFill(Color.RED);
-                circlePane.getChildren().add(circle);
-                circle.toFront();
+                Location location = new Location(tempName, event.getX(), event.getY());
+                location.setFill(Color.RED);
+                circlePane.getChildren().add(location);
+                listGraph.add(location);
+                location.toFront();
                 eventHandlerActivated = false;
            };
         });
@@ -110,33 +126,139 @@ public class PathFinder extends Application{
         Application.launch(args);
     }
 
-    class Place extends Circle {
+    String locationsListAsString = "";
+    StringBuilder connectionsList = new StringBuilder();
+    String[] locationsArray;
+
+    private void open() {
+        try {
+            System.out.println("test");
+            FileReader fileReader = new FileReader(fileName);
+            BufferedReader lineReader = new BufferedReader(fileReader);
+            lineReader.readLine(); // Skip the first line in europa.graph
+            locationsListAsString = lineReader.readLine(); // Store the second line in locationsListAsString
+
+            // Save all the lines in europa.graph after the second line in connectionsList
+            connectionsList = new StringBuilder();
+            String line;
+            while ((line = lineReader.readLine()) != null) {
+                connectionsList.append(line).append(";");
+            }
+
+            lineReader.close();
+            fileReader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        locationsArray = locationsListAsString.split(";");
+
+        for (int i = 0; i < locationsArray.length - 2; i += 3) {
+            double x1 = Double.parseDouble(locationsArray[i + 1]);
+            double y1 = Double.parseDouble(locationsArray[i + 2]);
+            Location newLocation = new Location(locationsArray[i], x1, y1);
+            newLocation.setOnMouseClicked(new ClickerHandler()); // Make the locations clickable
+            newLocation.setFill(Color.RED);
+            listGraph.add(newLocation);
+            circlePane.getChildren().add(newLocation);
+            newLocation.toFront();
+        }
+    }
+
+    class SaveHandler implements EventHandler<ActionEvent> {
+        String citiesString = "";
+        String edgesString = "";
+        @Override
+        public void handle(ActionEvent actionEvent) {
+
+            System.out.println("JOEL TIME");
+            try {
+                citiesString = "";
+                edgesString = "";
+                FileWriter writer = new FileWriter("europa.graph");
+                PrintWriter printWriter = new PrintWriter(writer);
+                boolean first = false;
+                for (Location location : listGraph.getNodes()) {
+                    if (!first) {
+                        citiesString += location.toString();
+                        first = true;
+                    } else {
+                        citiesString += ";" + location.toString();
+
+
+                    }
+                    for (var v : listGraph.getEdgesFrom(location)) {
+                        edgesString += location.getName() + ";" + v.getDestination().getName() + ";" + v.getName() + ";" + v.getWeight() + "\n";
+                    }
+                }
+                printWriter.println("file:europa.gif");
+                printWriter.println(citiesString);
+                printWriter.println(edgesString);
+                System.out.println("Saving file");
+                writer.close();
+                printWriter.close();
+            } catch (IOException e) {
+                System.out.println("Error");
+            }
+        }
+    }
+    Location selectedLocation1;
+    Location selectedLocation2;
+    class ClickerHandler implements EventHandler<MouseEvent> {
+        @Override
+        public void handle(MouseEvent event) {
+            // Skapar en temporär cirkel vilket blir cirklen man precis tryckt på.
+            Location location = (Location) event.getSource();
+
+            // Kollar om cirkelmarked1 är tom och att c (cirkeln man tryckt) på inte är lika med circlemarked2.
+            // Tilldelar sedan c till cirkelmarked1.
+            if (selectedLocation1 == null && !location.equals(selectedLocation2)) {
+                selectedLocation1 = location;
+                selectedLocation1.setFill(Color.RED); // RÖD
+
+
+            }
+            // Kollar om cirkelmarked2 är tom och att c (cirkeln man tryckt) på inte är lika med circlemarked1.
+            // Tilldelar sedan c till cirkelmarked2.
+            else if (selectedLocation2 == null && !location.equals(selectedLocation1)) {
+                selectedLocation2 = location;
+                selectedLocation2.setFill(Color.RED); // RÖD
+            }
+            // Kollar om c (cirkeln man tryckt) är lika med circleMarked1 och inte lika med circleMarked2 och
+            // isåfall omarkerar circleMarked1 genom att göra den blå och sätta den till null.
+            else if (location.equals(selectedLocation1) && !location.equals(selectedLocation2)) {
+                location.setFill(Color.BLUE); // BLÅ
+                selectedLocation1 = null;
+            }
+            // Kollar om c (cirkeln man tryckt) är lika med circleMarked2 och inte lika med circleMarked1 och
+            // isåfall omarkerar circleMarked2 genom att göra den blå och sätta den till null.
+            else if (location.equals(selectedLocation2) && !location.equals(selectedLocation1)) {
+                location.setFill(Color.BLUE); // BLÅ
+                selectedLocation2 = null;
+            }
+        }
+    }
+
+    static class Location extends Circle {
 
         private String name;
-        private Color color;
 
-        public Place(double centerX, double centerY, double radius, Color color, String name) {
-            super(centerX, centerY, radius);
-            this.color = color;
+        public Location(String name, double centerX, double centerY) {
+            super(centerX, centerY, 10);
             this.name = name;
-            this.setFill(color);
+            this.setFill(Color.RED);
         }
 
         public String getName() {
             return name;
         }
 
-        public Color getColor() {
-            return color;
-        }
-
         public void setName(String name) {
             this.name = name;
         }
 
-        public void setColor(Color color) {
-            this.color = color;
-            this.setFill(color);
+        public String toString(){
+            return name + ";" + getCenterX() + ";" + getCenterY();
         }
     }
 }
