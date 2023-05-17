@@ -11,19 +11,27 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
+import javafx.stage.WindowEvent;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Alert;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.SnapshotParameters;
+import org.w3c.dom.events.Event;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.Optional;
+
 
 public class PathFinder extends Application{
     ListGraph<Location> listGraph = new ListGraph<>();
@@ -31,6 +39,7 @@ public class PathFinder extends Application{
     private static final String fileName = "europa.graph";
     boolean eventHandlerActivated = false;
     boolean mapIsLoaded = false;
+    boolean changed = false;
     ImageView imageView;
     Image map;
     StackPane stackPane;
@@ -259,6 +268,33 @@ public class PathFinder extends Application{
 
         public String toString(){
             return name + ";" + getCenterX() + ";" + getCenterY();
+        }
+    }
+    //Spara en snappshot tror 4.1.4
+    //SnapShotParameters parameter = new SnapShotParameters();
+    //WriteableImage image = center.snapshot(parameters, null);
+    class SaveImageHandler implements EventHandler<ActionEvent>{
+        public void handle(ActionEvent event){
+            try{
+                WritableImage image = center.snapshot(null, null);
+                BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
+                ImageIO.write(bufferedImage, "png", new File("capture.png"));
+            }catch(IOException e){
+                Alert alert = new Alert(Alert.AlertType.ERROR,"IO-fel" + e.getMessage());
+                alert.showAndWait();
+            }
+        }
+    }
+    //4.1.5
+    class ExitHandler implements EventHandler<WindowEvent>{
+        @Override public void handle(WindowEvent event){
+            if(changed){
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setContentText("Unsaved changes, exit anyway?");
+                Optional<ButtonType> res = alert.showAndWait();
+                if(res.isPresent() && res.get().equals(ButtonType.CANCEL))
+                    event.consume();
+            }
         }
     }
 }
