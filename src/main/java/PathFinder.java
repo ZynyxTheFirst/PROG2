@@ -3,12 +3,13 @@
 // Hanna Arrhenius haar9434
 // Erik Strandberg erst1916
 // Robin Westling rowe7856
-import Main.ListGraph;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -18,20 +19,16 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
-import javafx.stage.WindowEvent;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Alert;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.SnapshotParameters;
-import org.w3c.dom.events.Event;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Optional;
-
 
 public class PathFinder extends Application{
     ListGraph<Location> listGraph = new ListGraph<>();
@@ -44,6 +41,13 @@ public class PathFinder extends Application{
     Image map;
     StackPane stackPane;
     Pane circlePane;
+    String locationsListAsString = "";
+    StringBuilder connectionsList = new StringBuilder();
+    String[] locationsArray;
+    String[] connectionsArray;
+    Location selectedLocation1;
+    Location selectedLocation2;
+    boolean continueAction = false;
 
     public void start(Stage stage){
 
@@ -64,58 +68,85 @@ public class PathFinder extends Application{
         fileMenu.setId("menuFile");
         MenuItem newMapMI = new MenuItem("New Map");
         newMapMI.setOnAction(event -> {
-            imageView.setFitHeight(map.getHeight());
-            imageView.setFitWidth(map.getWidth());
-            imageView.setPreserveRatio(true);
-            imageView.setImage(map);
-
-            stackPane.setMinWidth(map.getWidth());
-            stackPane.setMinHeight(map.getHeight());
-
-            circlePane.getChildren().clear(); // Clear any existing circles
-
-            stage.sizeToScene();
-
-            // Set the size of the StackPane and all its children to the size of the image
-            stackPane.setPrefSize(map.getWidth(), map.getHeight());
-            stackPane.setMaxSize(map.getWidth(), map.getHeight());
-            stackPane.setMinSize(map.getWidth(), map.getHeight());
-            mapIsLoaded = true;
+            checkForChanges(event);
+            if(continueAction){
+                newMap(stage);
+                continueAction=false;
+            }
         });
         MenuItem openMI = new MenuItem("Open");
-        openMI.setOnAction(event -> open());
+        openMI.setOnAction(event -> {
+            checkForChanges(event);
+            if(continueAction){
+                open();
+                continueAction=false;
+            }
+        });
         MenuItem saveMI = new MenuItem("Save");
         saveMI.setOnAction(new SaveHandler());
         MenuItem saveImageMI = new MenuItem("Save Image");
+        saveImageMI.setOnAction(new SaveImageHandler(stackPane));
         MenuItem exitMI = new MenuItem("Exit");
+        exitMI.setOnAction(event -> {
+            checkForChanges(event);
+            if(continueAction){
+                System.exit(0);
+            }
+        });
         fileMenu.getItems().addAll(newMapMI, openMI, saveMI, saveImageMI, exitMI);
         menuBar.getMenus().add(fileMenu);
 
         //Buttons
         Button findPathButton = new Button("Find Path");
+        findPathButton.setOnAction(event -> findPath());
         Button showConnectionButton = new Button("Show Connection");
+        showConnectionButton.setOnAction(event -> showConnection());
         Button newPlaceButton = new Button("New Place");
 
-        newPlaceButton.setOnAction(event -> {
-            if(mapIsLoaded){
-                eventHandlerActivated = true;
-            }
-        });
         Button newConnectionButton = new Button("New Connection");
+        newConnectionButton.setOnAction(event -> connect());
         Button changeConnectionButton = new Button("Change Connection");
+        changeConnectionButton.setOnAction(event -> changeConnection());
         VBox vBox = new VBox();
         HBox buttons = new HBox();
 
-        String tempName = "name";
+        ///New Place
+        newPlaceButton.setOnAction(event -> {
+            if(mapIsLoaded){
+                eventHandlerActivated = true;
+                stackPane.setCursor(Cursor.CROSSHAIR);
+                newPlaceButton.setDisable(true);
+            }
+        });
+
+        stage.setOnCloseRequest(event -> {
+            checkForChanges(event);
+            if(continueAction)
+                System.exit(0);
+        });
+
         stackPane.setOnMouseClicked(event -> {
             if (eventHandlerActivated) {
-                Location location = new Location(tempName, event.getX(), event.getY());
-                location.setFill(Color.RED);
-                circlePane.getChildren().add(location);
-                listGraph.add(location);
-                location.toFront();
+                changed = true;
+                stackPane.setCursor(Cursor.DEFAULT);
+                newPlaceButton.setDisable(false);
+
+                TextInputDialog dialog = new TextInputDialog();
+                dialog.setTitle("New Place");
+                dialog.setHeaderText("Enter the name of the new place:");
+                dialog.setContentText("Name:");
+
+                Optional<String> result = dialog.showAndWait();
+                result.ifPresent(name -> {
+                    changed = true;
+                    Location location = new Location(name, event.getX(), event.getY());
+                    location.setOnMouseClicked(new ClickerHandler());
+                    circlePane.getChildren().add(location);
+                    listGraph.add(location);
+                    location.toFront();
+                });
                 eventHandlerActivated = false;
-           };
+           }
         });
 
         buttons.getChildren().addAll(findPathButton, showConnectionButton, newPlaceButton, newConnectionButton, changeConnectionButton);
@@ -130,18 +161,11 @@ public class PathFinder extends Application{
         stage.setTitle("PathFinder");
         stage.show();
     }
-
     public static void main(String[] args) {
         Application.launch(args);
     }
-
-    String locationsListAsString = "";
-    StringBuilder connectionsList = new StringBuilder();
-    String[] locationsArray;
-
     private void open() {
         try {
-            System.out.println("test");
             FileReader fileReader = new FileReader(fileName);
             BufferedReader lineReader = new BufferedReader(fileReader);
             lineReader.readLine(); // Skip the first line in europa.graph
@@ -167,20 +191,175 @@ public class PathFinder extends Application{
             double y1 = Double.parseDouble(locationsArray[i + 2]);
             Location newLocation = new Location(locationsArray[i], x1, y1);
             newLocation.setOnMouseClicked(new ClickerHandler()); // Make the locations clickable
-            newLocation.setFill(Color.RED);
+            newLocation.setFill(Color.BLUE);
             listGraph.add(newLocation);
             circlePane.getChildren().add(newLocation);
             newLocation.toFront();
         }
-    }
 
+        connectionsArray = connectionsList.toString().split(";");
+
+        if (connectionsArray.length != 0) {
+            // Ritar ut alla förbindelser
+            for (int i = 0; i < connectionsArray.length - 3; i += 4) {
+                Location destination1 = null;
+                Location destination2 = null;
+                // Letar igenom listgraphs map och hittar städerna via deras namn.
+                for (Location city : listGraph.getNodes()) {
+                    if (city.getName().equals(connectionsArray[i])) {
+                        destination1 = city;
+                    }
+                    if (city.getName().equals(connectionsArray[i + 1])) {
+                        destination2 = city;
+                    }
+                }
+
+                if (destination1 != null && destination2 != null) {
+                    if(listGraph.getEdgeBetween(destination1, destination2) == null){
+                        int weight = Integer.parseInt(connectionsArray[i + 3]);
+                        listGraph.connect(destination1, destination2, connectionsArray[i + 2], weight);
+
+                        // Skapar en linje, ritar ut den mellan två stöder och sen lägger till den i europePane.
+                        Line drawLine = new Line(destination1.getCenterX(), destination1.getCenterY(), destination2.getCenterX(), destination2.getCenterY());
+                        circlePane.getChildren().add(drawLine);
+                    }
+                }
+            }
+        }
+    }
+    void newMap(Stage stage){
+        imageView.setFitHeight(map.getHeight());
+        imageView.setFitWidth(map.getWidth());
+        imageView.setPreserveRatio(true);
+        imageView.setImage(map);
+
+        stage.sizeToScene();
+
+        stackPane.setMinWidth(map.getWidth());
+        stackPane.setMinHeight(map.getHeight());
+
+        circlePane.getChildren().clear(); // Clear any existing circles
+
+        // Set the size of the StackPane and all its children to the size of the image
+        stackPane.setPrefSize(map.getWidth(), map.getHeight());
+        stackPane.setMaxSize(map.getWidth(), map.getHeight());
+        stackPane.setMinSize(map.getWidth(), map.getHeight());
+        mapIsLoaded = true;
+    }
+    void connect(){
+        if (selectedLocation1 == null || selectedLocation2 == null){
+            showAlert("Two places must be selected!");
+            return;
+        }
+        if (listGraph.getEdgeBetween(selectedLocation1, selectedLocation2) != null){
+            showAlert("A connection already exists between the selected places!");
+            return;
+        }
+        //Connect
+        ConnectionAlert connectionAlert = new ConnectionAlert();
+        connectionAlert.showAndWait().ifPresent(buttonType -> {
+            if(buttonType == ButtonType.OK){
+                listGraph.connect(selectedLocation1, selectedLocation2, connectionAlert.getName(), connectionAlert.getTime());
+                Line drawLine = new Line(selectedLocation1.getCenterX(), selectedLocation1.getCenterY(), selectedLocation2.getCenterX(), selectedLocation2.getCenterY());
+                circlePane.getChildren().add(drawLine);
+            }
+        });
+    }
+    void changeConnection(){
+        if (selectedLocation1 == null || selectedLocation2 == null){
+            showAlert("Two places must be selected!");
+            return;
+        }
+        if(listGraph.getEdgeBetween(selectedLocation1, selectedLocation2) == null){
+            showAlert("No connection found!");
+            return;
+        }
+        ConnectionAlert connectionAlert = new ConnectionAlert(listGraph.getEdgeBetween(selectedLocation1, selectedLocation2), false);
+        connectionAlert.showAndWait().ifPresent(buttonType -> {
+            if(buttonType == ButtonType.OK) listGraph.setConnectionWeight(selectedLocation1, selectedLocation2, connectionAlert.getTime());
+        });
+    }
+    void showConnection(){
+        if (selectedLocation1 == null || selectedLocation2 == null){
+            showAlert("Two places must be selected!");
+            return;
+        }
+        if(listGraph.getEdgeBetween(selectedLocation1, selectedLocation2) == null){
+            showAlert("No connection found!");
+            return;
+        }
+        ConnectionAlert connectionAlert = new ConnectionAlert(listGraph.getEdgeBetween(selectedLocation1, selectedLocation2), true);
+        connectionAlert.showAndWait();
+    }
+    void findPath(){
+        if(listGraph.getPath(selectedLocation1, selectedLocation1) == null){
+            showAlert("No path found!");
+            return;
+        }
+        StringBuilder stringBuilder;
+        stringBuilder = new StringBuilder();
+        int count = 0;
+        for(Edge<Location> e : listGraph.getPath(selectedLocation1, selectedLocation2)){
+            stringBuilder.append(e.toString()).append("\n");
+            count += e.getWeight();
+        }
+        stringBuilder.append(count);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Message");
+        alert.setHeaderText("The path from " + selectedLocation1 + " to " + selectedLocation2 + ":");
+        alert.setContentText(stringBuilder.toString());
+        alert.showAndWait();
+    }
+    void showAlert(String message) {
+        Alert msgBox = new Alert(Alert.AlertType.ERROR);
+        msgBox.setTitle("Error!");
+        msgBox.setHeaderText(null);
+        msgBox.setContentText(message);
+        msgBox.showAndWait();
+    }
+    static class ConnectionAlert extends Alert{
+        private final TextField nameField = new TextField();
+        private final TextField timeField = new TextField();
+        GridPane gridPane;
+        public ConnectionAlert(){
+            super(AlertType.CONFIRMATION);
+            setUpGrid();
+            getDialogPane().setContent(gridPane);
+        }
+        public ConnectionAlert(Edge<Location> edge, boolean displayOnly){
+            super(AlertType.CONFIRMATION);
+            setUpGrid();
+            nameField.setEditable(false);
+            nameField.setText(edge.getName());
+            if(displayOnly){
+                timeField.setEditable(false);
+                timeField.setText(String.valueOf(edge.getWeight()));
+            }else {
+                timeField.setEditable(true);
+            }
+            getDialogPane().setContent(gridPane);
+        }
+        private void setUpGrid(){
+            gridPane = new GridPane();
+            gridPane.setAlignment(Pos.CENTER);
+            gridPane.setPadding(new Insets(10));
+            gridPane.setHgap(5);
+            gridPane.setVgap(10);
+            gridPane.addRow(0, new Label("Name:"), nameField);
+            gridPane.addRow(1, new Label("Time:"), timeField);
+        }
+        public String getName(){
+            return nameField.getText();
+        }
+        public int getTime(){
+            return Integer.parseInt(timeField.getText());
+        }
+    }
     class SaveHandler implements EventHandler<ActionEvent> {
         String citiesString = "";
         String edgesString = "";
         @Override
         public void handle(ActionEvent actionEvent) {
-
-            System.out.println("JOEL TIME");
             try {
                 citiesString = "";
                 edgesString = "";
@@ -189,12 +368,10 @@ public class PathFinder extends Application{
                 boolean first = false;
                 for (Location location : listGraph.getNodes()) {
                     if (!first) {
-                        citiesString += location.toString();
+                        citiesString += location.saveInformation();
                         first = true;
                     } else {
-                        citiesString += ";" + location.toString();
-
-
+                        citiesString += ";" + location.saveInformation();
                     }
                     for (var v : listGraph.getEdgesFrom(location)) {
                         edgesString += location.getName() + ";" + v.getDestination().getName() + ";" + v.getName() + ";" + v.getWeight() + "\n";
@@ -211,8 +388,6 @@ public class PathFinder extends Application{
             }
         }
     }
-    Location selectedLocation1;
-    Location selectedLocation2;
     class ClickerHandler implements EventHandler<MouseEvent> {
         @Override
         public void handle(MouseEvent event) {
@@ -247,15 +422,13 @@ public class PathFinder extends Application{
             }
         }
     }
-
     static class Location extends Circle {
-
         private String name;
 
         public Location(String name, double centerX, double centerY) {
             super(centerX, centerY, 10);
             this.name = name;
-            this.setFill(Color.RED);
+            this.setFill(Color.BLUE);
         }
 
         public String getName() {
@@ -267,34 +440,46 @@ public class PathFinder extends Application{
         }
 
         public String toString(){
+            return name;
+        }
+        public String saveInformation(){
             return name + ";" + getCenterX() + ";" + getCenterY();
         }
     }
-    //Spara en snappshot tror 4.1.4
+    //Spara en snapshot tror 4.1.4
     //SnapShotParameters parameter = new SnapShotParameters();
     //WriteableImage image = center.snapshot(parameters, null);
-    class SaveImageHandler implements EventHandler<ActionEvent>{
-        public void handle(ActionEvent event){
-            try{
-                WritableImage image = center.snapshot(null, null);
+    static class SaveImageHandler implements EventHandler<ActionEvent> {
+        private final StackPane stackPane;
+
+        public SaveImageHandler(StackPane stackPane) {
+            this.stackPane = stackPane;
+        }
+
+        public void handle(ActionEvent event) {
+            try {
+                WritableImage image = stackPane.snapshot(new SnapshotParameters(), null);
+                File file = new File("capture.png");
                 BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
-                ImageIO.write(bufferedImage, "png", new File("capture.png"));
-            }catch(IOException e){
-                Alert alert = new Alert(Alert.AlertType.ERROR,"IO-fel" + e.getMessage());
+                ImageIO.write(bufferedImage, "png", file);
+            } catch (IOException e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("IO-fel: " + e.getMessage());
                 alert.showAndWait();
             }
         }
     }
     //4.1.5
-    class ExitHandler implements EventHandler<WindowEvent>{
-        @Override public void handle(WindowEvent event){
-            if(changed){
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setContentText("Unsaved changes, exit anyway?");
-                Optional<ButtonType> res = alert.showAndWait();
-                if(res.isPresent() && res.get().equals(ButtonType.CANCEL))
-                    event.consume();
+    void checkForChanges(Event event){
+        if(changed){
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setContentText("Unsaved changes, continue anyway?");
+            Optional<ButtonType> result = alert.showAndWait();
+            if(result.isPresent() && result.get() == ButtonType.CANCEL){
+                event.consume();
+            }else{
+                continueAction = true;
             }
-        }
+        }else{continueAction = true;}
     }
 }

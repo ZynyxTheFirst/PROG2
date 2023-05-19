@@ -1,4 +1,3 @@
-package Main;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -254,7 +253,7 @@ class GraphTest {
 
         expectedStrings.removeAll(actualStrings);
 
-        assertTrue(match, "Det saknades information om bågar.\nnLetade efter: " + expectedStrings);
+        Assertions.assertTrue(match, "Det saknades information om bågar.\nnLetade efter: " + expectedStrings);
     }
 
     @Test
@@ -281,7 +280,7 @@ class GraphTest {
         createExampleGraph();
 
         var validPath = graph.pathExists(VALID_NODE_1, "C");
-        assertTrue(validPath, "Fel: det borde ha funnits en väg mellan noderna.");
+        Assertions.assertTrue(validPath, "Fel: det borde ha funnits en väg mellan noderna.");
     }
 
     @Test
@@ -290,7 +289,7 @@ class GraphTest {
     void test10_pathExists_existing_nodes_without_valid_path() {
         createExampleGraph();
         var invalidPath = graph.pathExists(VALID_NODE_1, VALID_NODE_NOT_CONNECTED);
-        assertFalse(invalidPath, ERROR_NONMISSING_PATH);
+        Assertions.assertFalse(invalidPath, ERROR_NONMISSING_PATH);
     }
 
     @Test
@@ -298,10 +297,10 @@ class GraphTest {
     @DisplayName("Testar pathExists för noder som inte finns.")
     void test10_pathExists_non_existing_nodes() {
         createExampleGraph();
-        assertDoesNotThrow(() -> graph.pathExists(INVALID_NODE_1, INVALID_NODE_2), INGET_UNDANTAG_BORDE_HA_KASTATS + " (ogiltig1, ogiltig2)");
-        assertDoesNotThrow(() -> graph.pathExists(VALID_NODE_1, INVALID_NODE_2), INGET_UNDANTAG_BORDE_HA_KASTATS + " (giltig, ogiltig)");
-        assertDoesNotThrow(() -> graph.pathExists(INVALID_NODE_1, VALID_NODE_1), INGET_UNDANTAG_BORDE_HA_KASTATS + " (ogiltig, giltig)");
-        assertDoesNotThrow(() -> graph.pathExists(INVALID_NODE_2, INVALID_NODE_1), INGET_UNDANTAG_BORDE_HA_KASTATS + " (ogiltig2, ogiltig1)");
+        Assertions.assertDoesNotThrow(() -> graph.pathExists(INVALID_NODE_1, INVALID_NODE_2), INGET_UNDANTAG_BORDE_HA_KASTATS + " (ogiltig1, ogiltig2)");
+        Assertions.assertDoesNotThrow(() -> graph.pathExists(VALID_NODE_1, INVALID_NODE_2), INGET_UNDANTAG_BORDE_HA_KASTATS + " (giltig, ogiltig)");
+        Assertions.assertDoesNotThrow(() -> graph.pathExists(INVALID_NODE_1, VALID_NODE_1), INGET_UNDANTAG_BORDE_HA_KASTATS + " (ogiltig, giltig)");
+        Assertions.assertDoesNotThrow(() -> graph.pathExists(INVALID_NODE_2, INVALID_NODE_1), INGET_UNDANTAG_BORDE_HA_KASTATS + " (ogiltig2, ogiltig1)");
         assertFalse(graph.pathExists(INVALID_NODE_1, INVALID_NODE_2));
         assertFalse(graph.pathExists(VALID_NODE_1, INVALID_NODE_1));
         assertFalse(graph.pathExists(VALID_NODE_1, VALID_NODE_NOT_CONNECTED));

@@ -1,4 +1,3 @@
-package Main;
 // PROG2 VT2023, Inlämningsuppgift, del 1
 // Grupp 031
 // Hanna Arrhenius haar9434
@@ -39,6 +38,6 @@ public class Edge<T> implements Serializable {
 
     @Override
     public String toString(){
-        return "till " + node + " med " + name + " tar " + weight;
+        return "to " + node + " with " + name + " takes " + weight;
     }
 }
