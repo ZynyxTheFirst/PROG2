@@ -38,6 +38,6 @@ public class Edge<T> implements Serializable {
 
     @Override
     public String toString(){
-        return "to " + node + " with " + name + " takes " + weight;
+        return "to " + node + " by " + name + " takes " + weight;
     }
 }
