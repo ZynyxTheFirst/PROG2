@@ -24,6 +24,7 @@ import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.SnapshotParameters;
+import javafx.stage.WindowEvent;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -74,6 +75,7 @@ public class PathFinder extends Application{
             checkForChanges(event);
             if(continueAction){
                 newMap(stage, IMAGE_URL);
+                changed = true;
                 continueAction=false;
             }
         });
@@ -90,10 +92,7 @@ public class PathFinder extends Application{
         saveImageMI.setOnAction(new SaveImageHandler(stackPane));
 
         exitMI.setOnAction(event -> {
-            checkForChanges(event);
-            if(continueAction){
-                System.exit(0);
-            }
+            stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
         });
         fileMenu.getItems().addAll(newMapMI, openMI, saveMI, saveImageMI, exitMI);
         menuBar.getMenus().add(fileMenu);
@@ -123,9 +122,15 @@ public class PathFinder extends Application{
         });
 
         stage.setOnCloseRequest(event -> {
-            checkForChanges(event);
-            if(continueAction)
-                System.exit(0);
+            if(changed){
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setContentText("Unsaved changes, continue anyway?");
+                Optional<ButtonType> result = alert.showAndWait();
+                if(result.isPresent() && result.get() == ButtonType.CANCEL){
+                    event.consume();
+                }
+            }
+
         });
 
         stackPane.setOnMouseClicked(event -> {
